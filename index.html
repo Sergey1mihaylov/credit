@@ -76,80 +76,53 @@
             width: 30px;
             margin-right: 10px;
         }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #fff;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input, .form-container select {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .transaction-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Главный экран -->
-    <div id="screen1" class="screen active-screen">
-        <h1>Статистика долгов и кредиток</h1>
-        <div>
-            <canvas id="debtChart"></canvas>
+    <!-- Экран с историей операций -->
+    <div id="screen3" class="screen active-screen">
+        <h1>История операций</h1>
+        <button onclick="showTransactionForm()">Добавить транзакцию</button>
+        <div id="transactionForm" class="form-container" style="display:none;">
+            <h2>Добавить транзакцию</h2>
+            <select id="paymentMethod">
+                <option value="Кошелек">Кошелек</option>
+                <!-- Способы оплаты будут добавляться здесь -->
+            </select>
+            <input type="number" id="transactionAmount" placeholder="Сумма транзакции" />
+            <input type="text" id="transactionTo" placeholder="Куда переводим (например, Кредит)" />
+            <button onclick="addTransaction()">Добавить транзакцию</button>
         </div>
-        <h3>Общая сумма долга: 400,000 ₽</h3>
-        <h3>Общий остаток на накопительном счете: 50,000 ₽</h3>
-        <div class="block" style="background-color: #00B140;">
-            <h4>Долг #1 <span style="font-size: 14px;">(Сбербанк)</span></h4>
-            <p>Сумма кредита: 100,000 ₽</p>
-        </div>
-        <div class="block" style="background-color: #e53935;">
-            <h4>Долг #2 <span style="font-size: 14px;">(Альфа-Банк)</span></h4>
-            <p>Сумма кредита: 300,000 ₽</p>
-        </div>
+        <div id="transactionList"></div>
     </div>
 
-    <!-- Экран с кредитами и картами -->
-    <div id="screen2" class="screen">
-        <h1>Кредитные карты и переводы</h1>
-        <div class="block" onclick="showDetails('credit1')">
-            <h4>Кредит #1 <img src="path/to/sberbank-logo.png" class="bank-logo" alt="Сбербанк"></h4>
-            <p>Сумма кредита: 100,000 ₽</p>
-            <p>Остаток на карте: 50,000 ₽</p>
-            <p>Процентная ставка: 12%</p>
-            <p>Сумма перевода на накопительный счёт: 10,000 ₽</p>
-            <button>Подробнее</button>
-            <div class="details" id="credit1Details">
-                <p>Процентная ставка: 12%</p>
-                <p>Переплата: 12,000 ₽</p>
-                <p>Погашено: 20% (20,000 ₽)</p>
-                <p>Остаток долга: 80,000 ₽</p>
-                <p>Дата последнего перевода на счёт: 1 октября 2025</p>
-            </div>
-        </div>
-        <div class="block" onclick="showDetails('credit2')">
-            <h4>Кредит #2 <img src="path/to/alfa-bank-logo.png" class="bank-logo" alt="Альфа-Банк"></h4>
-            <p>Сумма кредита: 300,000 ₽</p>
-            <p>Остаток на карте: 100,000 ₽</p>
-            <p>Процентная ставка: 15%</p>
-            <p>Сумма перевода на накопительный счёт: 30,000 ₽</p>
-            <button>Подробнее</button>
-            <div class="details" id="credit2Details">
-                <p>Процентная ставка: 15%</p>
-                <p>Переплата: 40,000 ₽</p>
-                <p>Погашено: 10% (30,000 ₽)</p>
-                <p>Остаток долга: 270,000 ₽</p>
-                <p>Дата последнего перевода на счёт: 5 ноября 2025</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Экран с накопительными счетами -->
-    <div id="screen3" class="screen">
-        <h1>Накопительные счета</h1>
-        <div class="block">
-            <h4>Накопительный счёт #1</h4>
-            <p>Баланс: 50,000 ₽</p>
-            <p>Процент на остаток: 5% годовых</p>
-            <p>Последнее пополнение: 1 октября 2025</p>
-        </div>
-        <div class="block">
-            <h4>Накопительный счёт #2</h4>
-            <p>Баланс: 20,000 ₽</p>
-            <p>Процент на остаток: 3% годовых</p>
-            <p>Последнее пополнение: 5 ноября 2025</p>
-        </div>
-    </div>
 </div>
 
 <div class="footer">
@@ -158,22 +131,10 @@
     <button id="btn3" onclick="changeScreen(3)">⏰</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Инициализация диаграммы на главном экране
-    var ctx = document.getElementById('debtChart').getContext('2d');
-    var debtChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Долг #1', 'Долг #2'],
-            datasets: [{
-                label: 'Долги',
-                data: [100000, 300000],
-                backgroundColor: ['#3498db', '#e74c3c']
-            }]
-        }
-    });
-
+    let transactions = [];
+    let paymentMethods = ["Кошелек"];
+    
     // Переход между экранами
     function changeScreen(screenNum) {
         document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active-screen'));
@@ -183,10 +144,68 @@
         document.querySelector(`#btn${screenNum}`).classList.add('active');
     }
 
-    // Показать подробности по кредиту
-    function showDetails(credit) {
-        const details = document.getElementById(`${credit}Details`);
-        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    // Форма для добавления транзакции
+    function showTransactionForm() {
+        document.getElementById("transactionForm").style.display = 'block';
+    }
+
+    // Добавить транзакцию
+    function addTransaction() {
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const amount = document.getElementById("transactionAmount").value;
+        const transactionTo = document.getElementById("transactionTo").value;
+
+        const newTransaction = {
+            paymentMethod,
+            amount,
+            transactionTo
+        };
+
+        transactions.push(newTransaction);
+        displayTransactions();
+        clearTransactionForm();
+    }
+
+    // Отображение транзакций
+    function displayTransactions() {
+        let transactionList = document.getElementById("transactionList");
+        transactionList.innerHTML = '';
+        transactions.forEach((transaction, index) => {
+            let transactionDiv = document.createElement("div");
+            transactionDiv.classList.add("block");
+            transactionDiv.classList.add("transaction-line");
+
+            // Форматируем строку: "Кошелек → Кредит"
+            transactionDiv.innerHTML = `
+                <div class="transaction-line">
+                    <p>${transaction.paymentMethod} <span class="arrow">→</span> ${transaction.transactionTo}</p>
+                    <p>Сумма: ${transaction.amount} ₽</p>
+                    <button onclick="editTransaction(${index})">Редактировать</button>
+                    <button onclick="deleteTransaction(${index})">Удалить</button>
+                </div>
+            `;
+            transactionList.appendChild(transactionDiv);
+        });
+    }
+
+    // Очистить форму транзакции
+    function clearTransactionForm() {
+        document.getElementById("transactionAmount").value = '';
+        document.getElementById("transactionTo").value = '';
+    }
+
+    // Редактировать транзакцию
+    function editTransaction(index) {
+        const transaction = transactions[index];
+        document.getElementById("paymentMethod").value = transaction.paymentMethod;
+        document.getElementById("transactionAmount").value = transaction.amount;
+        document.getElementById("transactionTo").value = transaction.transactionTo;
+    }
+
+    // Удалить транзакцию
+    function deleteTransaction(index) {
+        transactions.splice(index, 1);
+        displayTransactions();
     }
 </script>
 
