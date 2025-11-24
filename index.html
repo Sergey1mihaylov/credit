@@ -3,139 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учет кредитных карт и долгов</title>
+    <title>Учет кредитов и долгов</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: black;
+            color: #fff;
+            background-image: radial-gradient(circle, rgba(0, 0, 0, 0.7) 0%, rgba(255, 69, 0, 0.3) 30%, rgba(30, 144, 255, 0.2) 80%);
+            background-size: cover;
+            background-position: center;
         }
+
         .container {
-            margin-bottom: 60px;
+            padding: 20px;
         }
+
+        .top-blocks {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .top-block {
+            width: 45%;
+            height: 200px;
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .block-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .bottom-block {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
         .footer {
             position: fixed;
             bottom: 0;
             width: 100%;
             display: flex;
             justify-content: space-around;
-            background-color: #fff;
+            background-color: rgba(0, 0, 0, 0.8);
             padding: 15px 0;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .footer button {
             background: none;
             border: none;
-            font-size: 34px;
+            font-size: 30px;
             cursor: pointer;
+            color: #fff;
         }
+
         .footer button.active {
             color: #3498db;
         }
-        .screen {
-            display: none;
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
         }
-        .active-screen {
-            display: block;
-        }
-        .block {
-            background: #fff;
-            border-radius: 10px;
-            margin: 15px;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-        }
-        .block h4 {
-            margin: 0;
-        }
-        .block p {
-            margin: 5px 0;
-        }
-        .block button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .block button:hover {
-            background-color: #c0392b;
-        }
-        .details {
-            display: none;
-            padding-top: 10px;
-        }
-        .details p {
-            margin: 5px 0;
-        }
-        .form-container {
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            background-color: #fff;
-            margin: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-container input, .form-container select {
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .transaction-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .arrow {
-            font-size: 20px;
-            font-weight: bold;
-        }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Экран с историей операций -->
-    <div id="screen3" class="screen active-screen">
-        <h1>История операций</h1>
-        <button onclick="showTransactionForm()">Добавить транзакцию</button>
-        <div id="transactionForm" class="form-container" style="display:none;">
-            <h2>Добавить транзакцию</h2>
-            <select id="paymentMethod">
-                <option value="Кошелек">Кошелек</option>
-                <!-- Способы оплаты будут добавляться здесь -->
-            </select>
-            <input type="number" id="transactionAmount" placeholder="Сумма транзакции" />
-            <input type="text" id="transactionTo" placeholder="Куда переводим (например, Кредит)" />
-            <button onclick="addTransaction()">Добавить транзакцию</button>
+    <div class="top-blocks">
+        <!-- Расходы -->
+        <div class="top-block" id="expensesBlock">
+            <div class="block-title">Расходы (Кредиты)</div>
+            <canvas id="expensesChart"></canvas>
+            <div id="expensesTotal"></div>
         </div>
-        <div id="transactionList"></div>
+
+        <!-- Доходы -->
+        <div class="top-block" id="incomeBlock">
+            <div class="block-title">Доходы (Накопительные счета)</div>
+            <canvas id="incomeChart"></canvas>
+            <div id="incomeTotal"></div>
+        </div>
     </div>
 
-    <!-- Экран с кредитами -->
-    <div id="screen2" class="screen">
-        <h1>Кредитные карты и переводы</h1>
-        <button onclick="showCreditForm()">Добавить кредит</button>
-        <div id="creditForm" class="form-container" style="display:none;">
-            <h2>Добавление кредита</h2>
-            <input type="number" id="creditAmount" placeholder="Сумма кредита" />
-            <input type="date" id="creditStartDate" />
-            <input type="number" id="creditBalance" placeholder="Остаток долга" />
-            <input type="number" id="monthlyPayment" placeholder="Ежемесячный платеж" />
-            <input type="number" id="interestRate" placeholder="Процентная ставка" />
-            <textarea id="creditComment" placeholder="Комментарий"></textarea>
-            <button onclick="addCredit()">Добавить кредит</button>
-        </div>
-        <div id="creditsList"></div>
+    <!-- Итоговая диаграмма (Доходы vs Расходы) -->
+    <div class="bottom-block" id="overallChartBlock">
+        <canvas id="overallChart"></canvas>
     </div>
-
 </div>
 
 <div class="footer">
@@ -144,171 +118,99 @@
     <button id="btn3" onclick="changeScreen(3)">⏰</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let credits = [];
-    let transactions = [];
-    let paymentMethods = ["Кошелек"];
-    
-    // Переход между экранами
-    function changeScreen(screenNum) {
-        document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active-screen'));
-        document.querySelector(`#screen${screenNum}`).classList.add('active-screen');
+    // Данные для расходов и доходов
+    const expenses = [50000, 15000, 30000]; // Примерные суммы расходов
+    const incomes = [20000, 10000, 5000]; // Примерные суммы доходов
 
-        document.querySelectorAll('.footer button').forEach((btn) => btn.classList.remove('active'));
-        document.querySelector(`#btn${screenNum}`).classList.add('active');
-    }
+    const totalExpenses = expenses.reduce((a, b) => a + b, 0);
+    const totalIncomes = incomes.reduce((a, b) => a + b, 0);
 
-    // Экран 1: Диаграмма и статистика долгов
-    var ctx = document.getElementById('debtChart').getContext('2d');
-    var debtChart = new Chart(ctx, {
+    // Обновление диаграмм
+    const expensesChart = new Chart(document.getElementById('expensesChart'), {
         type: 'pie',
         data: {
-            labels: ['Долг #1', 'Долг #2'],
+            labels: ['Кредит 1', 'Кредит 2', 'Кредит 3'],
             datasets: [{
-                label: 'Долги',
-                data: [100000, 300000],
-                backgroundColor: ['#3498db', '#e74c3c']
+                label: 'Расходы',
+                data: expenses,
+                backgroundColor: ['#3498db', '#e74c3c', '#9b59b6'],
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const percentage = tooltipItem.raw / totalExpenses * 100;
+                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                        }
+                    }
+                }
+            }
         }
     });
 
-    // Форма для добавления кредита
-    function showCreditForm() {
-        document.getElementById("creditForm").style.display = 'block';
-    }
+    const incomeChart = new Chart(document.getElementById('incomeChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Счет 1', 'Счет 2', 'Счет 3'],
+            datasets: [{
+                label: 'Доходы',
+                data: incomes,
+                backgroundColor: ['#2ecc71', '#f39c12', '#e67e22'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const percentage = tooltipItem.raw / totalIncomes * 100;
+                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-    // Добавить кредит
-    function addCredit() {
-        const amount = document.getElementById("creditAmount").value;
-        const startDate = document.getElementById("creditStartDate").value;
-        const balance = document.getElementById("creditBalance").value;
-        const monthlyPayment = document.getElementById("monthlyPayment").value;
-        const interestRate = document.getElementById("interestRate").value;
-        const comment = document.getElementById("creditComment").value;
+    const overallChart = new Chart(document.getElementById('overallChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Доходы', 'Расходы'],
+            datasets: [{
+                data: [totalIncomes, totalExpenses],
+                backgroundColor: ['#2ecc71', '#e74c3c'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const total = totalIncomes + totalExpenses;
+                            const percentage = tooltipItem.raw / total * 100;
+                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-        const interestAmount = interestRate ? (balance * interestRate / 100) : 0;
-        const totalAmount = parseFloat(balance) + interestAmount;
+    // Обновление данных в блоках
+    document.getElementById('expensesTotal').textContent = `Общие расходы: ${totalExpenses} ₽`;
+    document.getElementById('incomeTotal').textContent = `Общий доход: ${totalIncomes} ₽`;
 
-        const newCredit = {
-            amount, startDate, balance, monthlyPayment, interestRate, interestAmount, totalAmount, comment
-        };
-
-        credits.push(newCredit);
-        displayCredits();
-        clearCreditForm();
-    }
-
-    // Отображение кредитов
-    function displayCredits() {
-        let creditsList = document.getElementById("creditsList");
-        creditsList.innerHTML = '';
-        credits.forEach((credit, index) => {
-            let creditDiv = document.createElement("div");
-            creditDiv.classList.add("block");
-            creditDiv.innerHTML = `
-                <h4>Кредит #${index + 1}</h4>
-                <p>Сумма кредита: ${credit.amount} ₽</p>
-                <p>Остаток долга: ${credit.balance} ₽</p>
-                <p>Ежемесячный платеж: ${credit.monthlyPayment} ₽</p>
-                <p>Процентная ставка: ${credit.interestRate}%</p>
-                <p>Переплата: ${credit.interestAmount} ₽</p>
-                <p>Комментарий: ${credit.comment}</p>
-                <button onclick="editCredit(${index})">Редактировать</button>
-                <button onclick="deleteCredit(${index})">Удалить</button>
-            `;
-            creditsList.appendChild(creditDiv);
-        });
-    }
-
-    // Очистить форму добавления кредита
-    function clearCreditForm() {
-        document.getElementById("creditAmount").value = '';
-        document.getElementById("creditStartDate").value = '';
-        document.getElementById("creditBalance").value = '';
-        document.getElementById("monthlyPayment").value = '';
-        document.getElementById("interestRate").value = '';
-        document.getElementById("creditComment").value = '';
-    }
-
-    // Редактировать кредит
-    function editCredit(index) {
-        const credit = credits[index];
-        document.getElementById("creditAmount").value = credit.amount;
-        document.getElementById("creditStartDate").value = credit.startDate;
-        document.getElementById("creditBalance").value = credit.balance;
-        document.getElementById("monthlyPayment").value = credit.monthlyPayment;
-        document.getElementById("interestRate").value = credit.interestRate;
-        document.getElementById("creditComment").value = credit.comment;
-    }
-
-    // Удалить кредит
-    function deleteCredit(index) {
-        credits.splice(index, 1);
-        displayCredits();
-    }
-
-    // Форма для добавления транзакции
-    function showTransactionForm() {
-        document.getElementById("transactionForm").style.display = 'block';
-    }
-
-    // Добавить транзакцию
-    function addTransaction() {
-        const paymentMethod = document.getElementById("paymentMethod").value;
-        const amount = document.getElementById("transactionAmount").value;
-        const transactionTo = document.getElementById("transactionTo").value;
-
-        const newTransaction = {
-            paymentMethod,
-            amount,
-            transactionTo
-        };
-
-        transactions.push(newTransaction);
-        displayTransactions();
-        clearTransactionForm();
-    }
-
-    // Отображение транзакций
-    function displayTransactions() {
-        let transactionList = document.getElementById("transactionList");
-        transactionList.innerHTML = '';
-        transactions.forEach((transaction, index) => {
-            let transactionDiv = document.createElement("div");
-            transactionDiv.classList.add("block");
-            transactionDiv.classList.add("transaction-line");
-
-            // Форматируем строку: "Кошелек → Кредит"
-            transactionDiv.innerHTML = `
-                <div class="transaction-line">
-                    <p>${transaction.paymentMethod} <span class="arrow">→</span> ${transaction.transactionTo}</p>
-                    <p>Сумма: ${transaction.amount} ₽</p>
-                    <button onclick="editTransaction(${index})">Редактировать</button>
-                    <button onclick="deleteTransaction(${index})">Удалить</button>
-                </div>
-            `;
-            transactionList.appendChild(transactionDiv);
-        });
-    }
-
-    // Очистить форму транзакции
-    function clearTransactionForm() {
-        document.getElementById("transactionAmount").value = '';
-        document.getElementById("transactionTo").value = '';
-    }
-
-    // Редактировать транзакцию
-    function editTransaction(index) {
-        const transaction = transactions[index];
-        document.getElementById("paymentMethod").value = transaction.paymentMethod;
-        document.getElementById("transactionAmount").value = transaction.amount;
-        document.getElementById("transactionTo").value = transaction.transactionTo;
-    }
-
-    // Удалить транзакцию
-    function deleteTransaction(index) {
-        transactions.splice(index, 1);
-        displayTransactions();
+    // Переход между экранами
+    function changeScreen(screenNum) {
+        document.querySelectorAll('.footer button').forEach((btn) => btn.classList.remove('active'));
+        document.querySelector(`#btn${screenNum}`).classList.add('active');
     }
 </script>
 
