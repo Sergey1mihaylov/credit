@@ -129,7 +129,7 @@
     const expensesChart = new Chart(document.getElementById('expensesChart'), {
         type: 'doughnut', // Кольцевая диаграмма
         data: {
-            labels: ['Кредит 1', 'Кредит 2', 'Кредит 3'],
+            labels: [],
             datasets: [{
                 label: 'Расходы',
                 data: expenses,
@@ -145,9 +145,12 @@
                     callbacks: {
                         label: function(tooltipItem) {
                             const percentage = tooltipItem.raw / totalExpenses * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                            return `${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
                         }
                     }
+                },
+                legend: {
+                    display: false // Отключаем легенду
                 }
             }
         }
@@ -156,7 +159,7 @@
     const incomeChart = new Chart(document.getElementById('incomeChart'), {
         type: 'doughnut', // Кольцевая диаграмма
         data: {
-            labels: ['Счет 1', 'Счет 2', 'Счет 3'],
+            labels: [],
             datasets: [{
                 label: 'Доходы',
                 data: incomes,
@@ -172,9 +175,12 @@
                     callbacks: {
                         label: function(tooltipItem) {
                             const percentage = tooltipItem.raw / totalIncomes * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                            return `${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
                         }
                     }
+                },
+                legend: {
+                    display: false // Отключаем легенду
                 }
             }
         }
@@ -199,9 +205,12 @@
                         label: function(tooltipItem) {
                             const total = totalIncomes + totalExpenses;
                             const percentage = tooltipItem.raw / total * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
+                            return `${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
                         }
                     }
+                },
+                legend: {
+                    display: false // Отключаем легенду
                 }
             }
         }
