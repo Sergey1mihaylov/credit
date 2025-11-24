@@ -72,10 +72,6 @@
         .details p {
             margin: 5px 0;
         }
-        .bank-logo {
-            width: 30px;
-            margin-right: 10px;
-        }
         .form-container {
             display: flex;
             flex-direction: column;
@@ -123,6 +119,23 @@
         <div id="transactionList"></div>
     </div>
 
+    <!-- Экран с кредитами -->
+    <div id="screen2" class="screen">
+        <h1>Кредитные карты и переводы</h1>
+        <button onclick="showCreditForm()">Добавить кредит</button>
+        <div id="creditForm" class="form-container" style="display:none;">
+            <h2>Добавление кредита</h2>
+            <input type="number" id="creditAmount" placeholder="Сумма кредита" />
+            <input type="date" id="creditStartDate" />
+            <input type="number" id="creditBalance" placeholder="Остаток долга" />
+            <input type="number" id="monthlyPayment" placeholder="Ежемесячный платеж" />
+            <input type="number" id="interestRate" placeholder="Процентная ставка" />
+            <textarea id="creditComment" placeholder="Комментарий"></textarea>
+            <button onclick="addCredit()">Добавить кредит</button>
+        </div>
+        <div id="creditsList"></div>
+    </div>
+
 </div>
 
 <div class="footer">
@@ -132,6 +145,7 @@
 </div>
 
 <script>
+    let credits = [];
     let transactions = [];
     let paymentMethods = ["Кошелек"];
     
@@ -142,6 +156,95 @@
 
         document.querySelectorAll('.footer button').forEach((btn) => btn.classList.remove('active'));
         document.querySelector(`#btn${screenNum}`).classList.add('active');
+    }
+
+    // Экран 1: Диаграмма и статистика долгов
+    var ctx = document.getElementById('debtChart').getContext('2d');
+    var debtChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Долг #1', 'Долг #2'],
+            datasets: [{
+                label: 'Долги',
+                data: [100000, 300000],
+                backgroundColor: ['#3498db', '#e74c3c']
+            }]
+        }
+    });
+
+    // Форма для добавления кредита
+    function showCreditForm() {
+        document.getElementById("creditForm").style.display = 'block';
+    }
+
+    // Добавить кредит
+    function addCredit() {
+        const amount = document.getElementById("creditAmount").value;
+        const startDate = document.getElementById("creditStartDate").value;
+        const balance = document.getElementById("creditBalance").value;
+        const monthlyPayment = document.getElementById("monthlyPayment").value;
+        const interestRate = document.getElementById("interestRate").value;
+        const comment = document.getElementById("creditComment").value;
+
+        const interestAmount = interestRate ? (balance * interestRate / 100) : 0;
+        const totalAmount = parseFloat(balance) + interestAmount;
+
+        const newCredit = {
+            amount, startDate, balance, monthlyPayment, interestRate, interestAmount, totalAmount, comment
+        };
+
+        credits.push(newCredit);
+        displayCredits();
+        clearCreditForm();
+    }
+
+    // Отображение кредитов
+    function displayCredits() {
+        let creditsList = document.getElementById("creditsList");
+        creditsList.innerHTML = '';
+        credits.forEach((credit, index) => {
+            let creditDiv = document.createElement("div");
+            creditDiv.classList.add("block");
+            creditDiv.innerHTML = `
+                <h4>Кредит #${index + 1}</h4>
+                <p>Сумма кредита: ${credit.amount} ₽</p>
+                <p>Остаток долга: ${credit.balance} ₽</p>
+                <p>Ежемесячный платеж: ${credit.monthlyPayment} ₽</p>
+                <p>Процентная ставка: ${credit.interestRate}%</p>
+                <p>Переплата: ${credit.interestAmount} ₽</p>
+                <p>Комментарий: ${credit.comment}</p>
+                <button onclick="editCredit(${index})">Редактировать</button>
+                <button onclick="deleteCredit(${index})">Удалить</button>
+            `;
+            creditsList.appendChild(creditDiv);
+        });
+    }
+
+    // Очистить форму добавления кредита
+    function clearCreditForm() {
+        document.getElementById("creditAmount").value = '';
+        document.getElementById("creditStartDate").value = '';
+        document.getElementById("creditBalance").value = '';
+        document.getElementById("monthlyPayment").value = '';
+        document.getElementById("interestRate").value = '';
+        document.getElementById("creditComment").value = '';
+    }
+
+    // Редактировать кредит
+    function editCredit(index) {
+        const credit = credits[index];
+        document.getElementById("creditAmount").value = credit.amount;
+        document.getElementById("creditStartDate").value = credit.startDate;
+        document.getElementById("creditBalance").value = credit.balance;
+        document.getElementById("monthlyPayment").value = credit.monthlyPayment;
+        document.getElementById("interestRate").value = credit.interestRate;
+        document.getElementById("creditComment").value = credit.comment;
+    }
+
+    // Удалить кредит
+    function deleteCredit(index) {
+        credits.splice(index, 1);
+        displayCredits();
     }
 
     // Форма для добавления транзакции
