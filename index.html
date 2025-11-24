@@ -1,218 +1,49 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учет кредитов и долгов</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: black;
-            color: #fff;
-            background-image: radial-gradient(circle, rgba(0, 0, 0, 0.7) 0%, rgba(255, 69, 0, 0.3) 30%, rgba(30, 144, 255, 0.2) 80%);
-            background-size: cover;
-            background-position: center;
-        }
-
-        .container {
-            padding: 20px;
-        }
-
-        .top-blocks {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .top-block {
-            width: 45%;
-            height: 200px;
-            border-radius: 15px;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .block-title {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .bottom-block {
-            width: 100%;
-            height: 200px;
-            margin-top: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 15px 0;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .footer button {
-            background: none;
-            border: none;
-            font-size: 30px;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        .footer button.active {
-            color: #3498db;
-        }
-
-        canvas {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-    </style>
+    <title>Кольцевая диаграмма</title>
 </head>
 <body>
+    <canvas id="myChart" width="400" height="400"></canvas>
 
-<div class="container">
-    <div class="top-blocks">
-        <!-- Расходы -->
-        <div class="top-block" id="expensesBlock">
-            <div class="block-title">Расходы (Кредиты)</div>
-            <canvas id="expensesChart"></canvas>
-            <div id="expensesTotal"></div>
-        </div>
-
-        <!-- Доходы -->
-        <div class="top-block" id="incomeBlock">
-            <div class="block-title">Доходы (Накопительные счета)</div>
-            <canvas id="incomeChart"></canvas>
-            <div id="incomeTotal"></div>
-        </div>
-    </div>
-
-    <!-- Итоговая диаграмма (Доходы vs Расходы) -->
-    <div class="bottom-block" id="overallChartBlock">
-        <canvas id="overallChart"></canvas>
-    </div>
-</div>
-
-<div class="footer">
-    <button id="btn1" class="active" onclick="changeScreen(1)">💰</button>
-    <button id="btn2" onclick="changeScreen(2)">📃</button>
-    <button id="btn3" onclick="changeScreen(3)">⏰</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Данные для расходов и доходов
-    const expenses = [50000, 15000, 30000]; // Примерные суммы расходов
-    const incomes = [20000, 10000, 5000]; // Примерные суммы доходов
-
-    const totalExpenses = expenses.reduce((a, b) => a + b, 0);
-    const totalIncomes = incomes.reduce((a, b) => a + b, 0);
-
-    // Обновление диаграмм
-    const expensesChart = new Chart(document.getElementById('expensesChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Кредит 1', 'Кредит 2', 'Кредит 3'],
-            datasets: [{
-                label: 'Расходы',
-                data: expenses,
-                backgroundColor: ['#3498db', '#e74c3c', '#9b59b6'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const percentage = tooltipItem.raw / totalExpenses * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    const incomeChart = new Chart(document.getElementById('incomeChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Счет 1', 'Счет 2', 'Счет 3'],
-            datasets: [{
-                label: 'Доходы',
-                data: incomes,
-                backgroundColor: ['#2ecc71', '#f39c12', '#e67e22'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const percentage = tooltipItem.raw / totalIncomes * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    const overallChart = new Chart(document.getElementById('overallChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Доходы', 'Расходы'],
-            datasets: [{
-                data: [totalIncomes, totalExpenses],
-                backgroundColor: ['#2ecc71', '#e74c3c'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const total = totalIncomes + totalExpenses;
-                            const percentage = tooltipItem.raw / total * 100;
-                            return `${tooltipItem.label}: ${tooltipItem.raw} ₽ (${percentage.toFixed(2)}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Обновление данных в блоках
-    document.getElementById('expensesTotal').textContent = `Общие расходы: ${totalExpenses} ₽`;
-    document.getElementById('incomeTotal').textContent = `Общий доход: ${totalIncomes} ₽`;
-
-    // Переход между экранами
-    function changeScreen(screenNum) {
-        document.querySelectorAll('.footer button').forEach((btn) => btn.classList.remove('active'));
-        document.querySelector(`#btn${screenNum}`).classList.add('active');
-    }
-</script>
-
+    <script>
+        const canvas = document.getElementById('myChart');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 150;
+        const innerRadius = 70; // Большое отверстие в центре
+        
+        // Данные и цвета как в оригинале
+        const data = [14, 4, 5, 55, 18]; // Проценты
+        const colors = ['#cccccc', '#2c3e50', '#3498db', '#e67e22', '#7f8c8d'];
+        
+        let startAngle = 0;
+        
+        // Рисуем сегменты
+        data.forEach((value, index) => {
+            const sliceAngle = (2 * Math.PI * value) / 100;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+            ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
+            ctx.closePath();
+            
+            ctx.fillStyle = colors[index];
+            ctx.fill();
+            
+            // Белые промежутки между сегментами
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+            ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
+            ctx.closePath();
+            
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            startAngle += sliceAngle;
+        });
+    </script>
 </body>
 </html>
