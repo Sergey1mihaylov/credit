@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет кредитных карт и долгов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container input,
+        .form-container button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .form-container input {
+            width: 250px;
+        }
+        .debt-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .debt-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .debt-item span {
+            font-weight: bold;
+        }
+        .debt-item button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .debt-item button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Учет кредитных карт и долгов</h1>
+
+    <div class="form-container">
+        <label for="debtName">Название долга:</label>
+        <input type="text" id="debtName" placeholder="Введите название долга">
+        <label for="debtAmount">Сумма долга (₽):</label>
+        <input type="number" id="debtAmount" placeholder="Введите сумму долга">
+        <label for="debtDueDate">Срок погашения:</label>
+        <input type="date" id="debtDueDate">
+        <button onclick="saveDebt()">Сохранить долг</button>
+    </div>
+
+    <h2>Мои долги</h2>
+    <ul id="debtList" class="debt-list"></ul>
+
+    <script>
+        // Функция для сохранения долга
+        function saveDebt() {
+            const name = document.getElementById('debtName').value;
+            const amount = document.getElementById('debtAmount').value;
+            const dueDate = document.getElementById('debtDueDate').value;
+            
+            if (!name || !amount || !dueDate) {
+                alert("Пожалуйста, заполните все поля!");
+                return;
+            }
+
+            const debt = { name, amount, dueDate };
+
+            // Получаем текущие данные долгов из LocalStorage
+            let debts = JSON.parse(localStorage.getItem('debts')) || [];
+            debts.push(debt);
+
+            // Сохраняем данные в LocalStorage
+            localStorage.setItem('debts', JSON.stringify(debts));
+
+            // Очищаем поля ввода
+            document.getElementById('debtName').value = '';
+            document.getElementById('debtAmount').value = '';
+            document.getElementById('debtDueDate').value = '';
+
+            displayDebts();
+        }
+
+        // Функция для отображения долгов
+        function displayDebts() {
+            const debts = JSON.parse(localStorage.getItem('debts')) || [];
+            const debtList = document.getElementById('debtList');
+            debtList.innerHTML = '';
+
+            debts.forEach((debt, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('debt-item');
+                listItem.innerHTML = `
+                    <span>${debt.name}:</span> ${debt.amount} ₽
+                    <br>
+                    Срок погашения: ${new Date(debt.dueDate).toLocaleDateString()}
+                    <button onclick="deleteDebt(${index})">Удалить</button>
+                `;
+                debtList.appendChild(listItem);
+            });
+        }
+
+        // Функция для удаления долга
+        function deleteDebt(index) {
+            let debts = JSON.parse(localStorage.getItem('debts')) || [];
+            debts.splice(index, 1);
+            localStorage.setItem('debts', JSON.stringify(debts));
+            displayDebts();
+        }
+
+        // Отображаем долги при загрузке страницы
+        displayDebts();
+    </script>
+</body>
+</html>
