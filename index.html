@@ -7,40 +7,50 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f4f4f9;
             color: #333;
         }
-        h1 {
-            color: #333;
+        .container {
+            margin-bottom: 60px; /* отступ для кнопок снизу */
         }
-        .form-container {
-            margin-bottom: 20px;
-        }
-        .form-container input,
-        .form-container button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-        .form-container input {
-            width: 250px;
-        }
-        .debt-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .debt-item {
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
             background-color: #fff;
-            border: 1px solid #ddd;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .footer button {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .footer button.active {
+            color: #3498db;
+        }
+        .screen {
+            display: none;
+        }
+        .active-screen {
+            display: block;
+        }
+        .block {
+            background: #fff;
+            border-radius: 10px;
+            margin: 15px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .block p {
             margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
         }
-        .debt-item span {
-            font-weight: bold;
-        }
-        .debt-item button {
+        .block button {
             background-color: #e74c3c;
             color: white;
             border: none;
@@ -48,85 +58,95 @@
             border-radius: 3px;
             cursor: pointer;
         }
-        .debt-item button:hover {
-            background-color: #c0392b;
-        }
     </style>
 </head>
 <body>
-    <h1>Учет кредитных карт и долгов</h1>
 
-    <div class="form-container">
-        <label for="debtName">Название долга:</label>
-        <input type="text" id="debtName" placeholder="Введите название долга">
-        <label for="debtAmount">Сумма долга (₽):</label>
-        <input type="number" id="debtAmount" placeholder="Введите сумму долга">
-        <label for="debtDueDate">Срок погашения:</label>
-        <input type="date" id="debtDueDate">
-        <button onclick="saveDebt()">Сохранить долг</button>
+<div class="container">
+    <!-- Главный экран -->
+    <div id="screen1" class="screen active-screen">
+        <h1>Статистика долгов</h1>
+        <div>
+            <canvas id="debtChart"></canvas>
+        </div>
+        <h3>Общая сумма долга: 400,000 ₽</h3>
+        <div class="block">
+            <h4>Долг #1</h4>
+            <p>Банк: Сбербанк</p>
+            <p>Сумма кредита: 100,000 ₽</p>
+        </div>
+        <div class="block">
+            <h4>Долг #2</h4>
+            <p>Банк: ВТБ</p>
+            <p>Сумма кредита: 300,000 ₽</p>
+        </div>
     </div>
 
-    <h2>Мои долги</h2>
-    <ul id="debtList" class="debt-list"></ul>
+    <!-- Экран с кредитами -->
+    <div id="screen2" class="screen">
+        <h1>Кредиты и долги</h1>
+        <div class="block">
+            <h4>Кредит #1</h4>
+            <p>Сумма кредита: 100,000 ₽</p>
+            <p>Дата платежа: 15 декабря 2025</p>
+            <button onclick="showDetails('credit1')">Подробнее</button>
+        </div>
+        <div class="block">
+            <h4>Кредит #2</h4>
+            <p>Сумма кредита: 300,000 ₽</p>
+            <p>Дата платежа: 20 января 2026</p>
+            <button onclick="showDetails('credit2')">Подробнее</button>
+        </div>
+    </div>
 
-    <script>
-        // Функция для сохранения долга
-        function saveDebt() {
-            const name = document.getElementById('debtName').value;
-            const amount = document.getElementById('debtAmount').value;
-            const dueDate = document.getElementById('debtDueDate').value;
-            
-            if (!name || !amount || !dueDate) {
-                alert("Пожалуйста, заполните все поля!");
-                return;
-            }
+    <!-- Экран с историей операций -->
+    <div id="screen3" class="screen">
+        <h1>История операций</h1>
+        <div class="block">
+            <h4>Оплата кредита #1</h4>
+            <p>Дата: 1 ноября 2025</p>
+            <p>Сумма: 20,000 ₽</p>
+            <p>Способ оплаты: Кошелек</p>
+        </div>
+    </div>
+</div>
 
-            const debt = { name, amount, dueDate };
+<div class="footer">
+    <button id="btn1" class="active" onclick="changeScreen(1)">💰</button>
+    <button id="btn2" onclick="changeScreen(2)">📃</button>
+    <button id="btn3" onclick="changeScreen(3)">⏰</button>
+</div>
 
-            // Получаем текущие данные долгов из LocalStorage
-            let debts = JSON.parse(localStorage.getItem('debts')) || [];
-            debts.push(debt);
-
-            // Сохраняем данные в LocalStorage
-            localStorage.setItem('debts', JSON.stringify(debts));
-
-            // Очищаем поля ввода
-            document.getElementById('debtName').value = '';
-            document.getElementById('debtAmount').value = '';
-            document.getElementById('debtDueDate').value = '';
-
-            displayDebts();
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Инициализация диаграммы на главном экране
+    var ctx = document.getElementById('debtChart').getContext('2d');
+    var debtChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Долг #1', 'Долг #2'],
+            datasets: [{
+                label: 'Долги',
+                data: [100000, 300000],
+                backgroundColor: ['#3498db', '#e74c3c']
+            }]
         }
+    });
 
-        // Функция для отображения долгов
-        function displayDebts() {
-            const debts = JSON.parse(localStorage.getItem('debts')) || [];
-            const debtList = document.getElementById('debtList');
-            debtList.innerHTML = '';
+    // Переход между экранами
+    function changeScreen(screenNum) {
+        document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active-screen'));
+        document.querySelector(`#screen${screenNum}`).classList.add('active-screen');
 
-            debts.forEach((debt, index) => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('debt-item');
-                listItem.innerHTML = `
-                    <span>${debt.name}:</span> ${debt.amount} ₽
-                    <br>
-                    Срок погашения: ${new Date(debt.dueDate).toLocaleDateString()}
-                    <button onclick="deleteDebt(${index})">Удалить</button>
-                `;
-                debtList.appendChild(listItem);
-            });
-        }
+        document.querySelectorAll('.footer button').forEach((btn) => btn.classList.remove('active'));
+        document.querySelector(`#btn${screenNum}`).classList.add('active');
+    }
 
-        // Функция для удаления долга
-        function deleteDebt(index) {
-            let debts = JSON.parse(localStorage.getItem('debts')) || [];
-            debts.splice(index, 1);
-            localStorage.setItem('debts', JSON.stringify(debts));
-            displayDebts();
-        }
+    // Показать подробности по кредиту
+    function showDetails(credit) {
+        alert(`Показать подробности для ${credit}`);
+    }
+</script>
 
-        // Отображаем долги при загрузке страницы
-        displayDebts();
-    </script>
 </body>
 </html>
